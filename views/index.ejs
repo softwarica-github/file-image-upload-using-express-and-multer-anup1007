@@ -8,7 +8,8 @@
 			<div class="agileits-top">
 				<form action="/imageupload" method="post"
 				enctype="multipart/form-data">
-					<input class="button" type="file" name="image" id="image" >
+					<input class="button" type="file" name="photo" id="image" >
+					<%= typeof msg !== 'undefined' ? msg : '' %>
 					<input type="submit" value="Upload Image">
 				</form>
 		</div>

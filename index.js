@@ -20,10 +20,10 @@ res.render("index");
 });
 
 //set storage
-  const storage = multer.diskStorage({
+  const locations = multer.diskStorage({
 //passing object
-destination:'./resources/uploads/' ,
-//location where we want to upload the our image
+destination:'./resources/uploads/' //set location to upload image
+,
 filename: function(req, file, cb)
 {
 	cb(null,file.originalname + '-' + Date.now() +
@@ -33,23 +33,47 @@ filename: function(req, file, cb)
   });
 
     const uploadImage = multer({
-  	storage: storage
-  	
-
-  }).single('image');
-
-    app.post('/imageupload',(req,res)=>
-{
-	uploadImage(req, res, (err) =>{
-if(err){
-	res.render('index',{
-		msg: err
-	} );
-}else {
-    res.send('image uploaded')
+  	storage: locations,
+    limits:{fileSize: 255000},
+    fileFilter: function(req,file,cb){
+      validation(file,cb);
     }
 
-	});
+  }).single('photo');
+
+  function validation(file,cb){
+    const filetypes = /png|jpg|jpeg|gif/;
+    const extname = filetypes.test(path.extname(file.originalname)
+      .toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+      if(mimetype && extname){
+    return cb(null,true);
+  } else {
+    cb('Please upload image only');
+  }
+  }
+
+app.post('/imageupload',(req,res)=>
+{
+  uploadImage(req, res, (err) =>{
+if(err){
+  res.render('index',{
+    msg: err
+  } );
+}else {
+      if(req.file == undefined){
+        res.render('index', {
+          msg: 'Alert: No image has choose!'
+        });
+      } else {
+        res.render('index', {
+          msg: 'Image Uploaded!',
+          file: `uploads/${req.file.filename}`
+        });
+      }
+    }
+
+  });
 });
 
 
